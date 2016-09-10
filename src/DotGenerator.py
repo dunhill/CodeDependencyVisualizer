@@ -26,6 +26,7 @@ class DotGenerator:
     _showPubMembers = False
     _drawAssociations = False
     _drawInheritances = False
+    _drawDependencies = False
 
     def __init__(self):
         self.classes = {}
@@ -38,7 +39,7 @@ class DotGenerator:
         return ret
 
     def _genMethods(self, accessPrefix, methods):
-        return "".join([(accessPrefix + methodName + methodArgs + " : " + returnType + "\l") for (returnType, methodName, methodArgs) in methods])
+        return "".join([(accessPrefix + methodName + methodArgs + " : " + returnType + "\l") for (returnType, methodName, methodArgs, argsTypes) in methods])
 
     def _genClass(self, aClass, withPublicMembers=False, withProtectedMembers=False, withPrivateMembers=False):
         c = (aClass.getId()+" [ \n" +
@@ -80,6 +81,23 @@ class DotGenerator:
             if fieldType in self.classes:
                 c = self.classes[fieldType]
                 edges.add(aClass.getId() + "->" + c.getId())
+
+        edgesJoined = "\n".join(edges)
+        return edgesJoined+"\n" if edgesJoined != "" else ""
+
+    def _genDependencies(self, aClass):
+        edges = set()
+        for ignoreRet, ignoreName, ignoreArgs, argTypes in aClass.privateMethods:
+            for argType in argTypes:
+                if argType in self.classes:
+                    c = self.classes[argType]
+                    edges.add(aClass.getId() + "->" + c.getId())
+        for ignoreRet, ignoreName, ignoreArgs, argTypes in aClass.publicMethods:
+            for argType in argTypes:
+                if argType in self.classes:
+                    c = self.classes[argType]
+                    edges.add(aClass.getId() + "->" + c.getId())
+
         edgesJoined = "\n".join(edges)
         return edgesJoined+"\n" if edgesJoined != "" else ""
 
@@ -96,6 +114,9 @@ class DotGenerator:
 
     def setDrawAssociations(self, enable):
         self._drawAssociations = enable
+
+    def setDrawDependencies(self, enable):
+        self._drawDependencies = enable
 
     def setShowPrivMethods(self, enable):
         self._showPrivMembers = enable
@@ -124,6 +145,16 @@ class DotGenerator:
         for key, value in self.classes.iteritems():
             dotContent += self._genClass(value, self._showPubMembers, self._showProtMembers, self._showPrivMembers)
 
+        # dependencies
+        if self._drawDependencies:
+            dependencies = ""
+            for key, aClass in self.classes.iteritems():
+                dependencies += self._genDependencies(aClass)
+
+            if dependencies != "":
+                dotContent += ("\nedge [style = dashed, arrowhead = open]\n")
+                dotContent += dependencies
+
         # associations
         if self._drawAssociations:
             associations = ""
@@ -131,7 +162,7 @@ class DotGenerator:
                 associations += self._genAssociations(aClass)
 
             if associations != "":
-                dotContent += ("\nedge [arrowhead = open]\n")
+                dotContent += ("\nedge [style = solid, arrowhead = open]\n")
                 dotContent += associations
 
         # inheritances
@@ -141,7 +172,7 @@ class DotGenerator:
                 inheritances += self._genInheritances(aClass)
 
             if inheritances != "":
-                dotContent += ("\nedge [arrowhead = empty]\n")
+                dotContent += ("\nedge [style = solid, arrowhead = empty]\n")
                 dotContent += inheritances
 
         dotContent += "}\n"

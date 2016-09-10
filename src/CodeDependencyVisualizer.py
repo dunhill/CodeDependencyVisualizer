@@ -41,6 +41,18 @@ def processClassField(cursor):
     return name, type
 
 
+def extractArgumentTypes(cursor):
+    types = []
+    for param in list(cursor.get_children()):
+        if param.kind == clang.cindex.CursorKind.TYPE_REF:
+            types.append(param.type.spelling)
+        elif param.kind == clang.cindex.CursorKind.PARM_DECL:
+            for type in list(param.get_children()):
+                if type.kind == clang.cindex.CursorKind.TYPE_REF:
+                    types.append(type.type.spelling)
+    return types
+
+
 def processClassMemberDeclaration(umlClass, cursor):
     """ Processes a cursor corresponding to a class member declaration and
     appends the extracted information to the given umlClass """
@@ -62,25 +74,20 @@ def processClassMemberDeclaration(umlClass, cursor):
                 umlClass.privateFields.append((name, type))
             elif cursor.access_specifier == clang.cindex.AccessSpecifier.PROTECTED:
                 umlClass.protectedFields.append((name, type))
-    elif cursor.kind == clang.cindex.CursorKind.CXX_METHOD:
+    elif cursor.kind in [clang.cindex.CursorKind.CXX_METHOD,
+                         clang.cindex.CursorKind.FUNCTION_TEMPLATE,
+                         clang.cindex.CursorKind.CONSTRUCTOR]:
         try:
-            returnType, argumentTypes = cursor.type.spelling.split(' ', 1)
+            returnType, arguments = cursor.type.spelling.split(' ', 1)
+            argumentTypes = extractArgumentTypes(cursor)
             if cursor.access_specifier == clang.cindex.AccessSpecifier.PUBLIC:
-                umlClass.publicMethods.append((returnType, cursor.spelling, argumentTypes))
+                umlClass.publicMethods.append((returnType, cursor.spelling, arguments, argumentTypes))
             elif cursor.access_specifier == clang.cindex.AccessSpecifier.PRIVATE:
-                umlClass.privateMethods.append((returnType, cursor.spelling, argumentTypes))
+                umlClass.privateMethods.append((returnType, cursor.spelling, arguments, argumentTypes))
             elif cursor.access_specifier == clang.cindex.AccessSpecifier.PROTECTED:
-                umlClass.protectedMethods.append((returnType, cursor.spelling, argumentTypes))
-        except:
-            logging.error("Invalid CXX_METHOD declaration! " + str(cursor.type.spelling))
-    elif cursor.kind == clang.cindex.CursorKind.FUNCTION_TEMPLATE:
-        returnType, argumentTypes = cursor.type.spelling.split(' ', 1)
-        if cursor.access_specifier == clang.cindex.AccessSpecifier.PUBLIC:
-            umlClass.publicMethods.append((returnType, cursor.spelling, argumentTypes))
-        elif cursor.access_specifier == clang.cindex.AccessSpecifier.PRIVATE:
-            umlClass.privateMethods.append((returnType, cursor.spelling, argumentTypes))
-        elif cursor.access_specifier == clang.cindex.AccessSpecifier.PROTECTED:
-            umlClass.protectedMethods.append((returnType, cursor.spelling, argumentTypes))
+                umlClass.protectedMethods.append((returnType, cursor.spelling, arguments, argumentTypes))
+        except Exception as e:
+            logging.error("Invalid CXX_METHOD declaration! " + str(cursor.type.spelling) + " with message " + str(e))
 
 
 def processClass(cursor, inclusionConfig):
@@ -141,6 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--withUnusedHeaders', help="parse unused header files (slow)")
     parser.add_argument('-a', '--associations', action="store_true", help="draw class member assiciations")
     parser.add_argument('-i', '--inheritances', action="store_true", help="draw class inheritances")
+    parser.add_argument('-r', '--dependencies', action="store_true", help="draw class dependencies")
     parser.add_argument('-p', '--privMembers', action="store_true", help="show private members")
     parser.add_argument('-t', '--protMembers', action="store_true", help="show protected members")
     parser.add_argument('-P', '--pubMembers', action="store_true", help="show public members")
@@ -172,6 +180,7 @@ if __name__ == "__main__":
 
     dotGenerator.setDrawAssociations(args['associations'])
     dotGenerator.setDrawInheritances(args['inheritances'])
+    dotGenerator.setDrawDependencies(args['dependencies'])
     dotGenerator.setShowPrivMethods(args['privMembers'])
     dotGenerator.setShowProtMethods(args['protMembers'])
     dotGenerator.setShowPubMethods(args['pubMembers'])

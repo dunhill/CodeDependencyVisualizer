@@ -19,9 +19,11 @@ For usage information run:
 python ./CodeDependencyVisualizer.py --help
 ```
 usage: CodeDependencyVisualizer.py [-h] -d D [-o OUTFILE]
-                                   [-u WITHUNUSEDHEADERS] [-a] [-i] [-p] [-t]
-                                   [-P] [-I INCLUDEDIRS [INCLUDEDIRS ...]]
-                                   [-v]
+                                   [-u WITHUNUSEDHEADERS] [-a] [-i] [-r] [-p]
+                                   [-t] [-P]
+                                   [-I INCLUDEDIRS [INCLUDEDIRS ...]] [-v]
+                                   [--excludeClasses EXCLUDECLASSES]
+                                   [--includeClasses INCLUDECLASSES]
 
 CodeDependencyVisualizer (CDV)
 
@@ -35,6 +37,7 @@ optional arguments:
                         parse unused header files (slow)
   -a, --associations    draw class member assiciations
   -i, --inheritances    draw class inheritances
+  -r, --dependencies    draw class dependencies
   -p, --privMembers     show private members
   -t, --protMembers     show protected members
   -P, --pubMembers      show public members
@@ -42,9 +45,9 @@ optional arguments:
                         additional search path(s) for include files (seperated
                         by space)
   -v, --verbose         print verbose information for debugging purposes
-  --exclude_classes EXCLUDE_CLASSES
+  --excludeClasses EXCLUDECLASSES
                         classes matching this pattern will be excluded
-  --include_classes INCLUDE_CLASSES
+  --includeClasses INCLUDECLASSES
                         only classes matching this pattern will be included
 ```
 

@@ -10,6 +10,9 @@ template<typename T>
 class G {
 };
 
+class D {
+};
+
 class H : public X, C, A, public G<int>{
   private:
     const NSXX::NSX::C *m;
@@ -18,12 +21,12 @@ class H : public X, C, A, public G<int>{
 
   public:
     T x;
-    void aPublicMethod() {}
+    void aPublicMethod(T t, A a, const D& d) {}
 
   protected:
     int y;
     const NSXX::NSX::C *n;
-    
+
     void aProtectedMethod();
 };
 
