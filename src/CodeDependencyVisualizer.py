@@ -153,6 +153,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--protMembers', action="store_true", help="show protected members")
     parser.add_argument('-P', '--pubMembers', action="store_true", help="show public members")
     parser.add_argument('-I', '--includeDirs', help="additional search path(s) for include files (seperated by space)", nargs='+')
+    parser.add_argument('--namespaces', action="store_true", help="group classes by namespaces")
     parser.add_argument('-v', '--verbose', action="store_true", help="print verbose information for debugging purposes")
     parser.add_argument('--excludeClasses', help="classes matching this pattern will be excluded")
     parser.add_argument('--includeClasses', help="only classes matching this pattern will be included")
@@ -184,6 +185,7 @@ if __name__ == "__main__":
     dotGenerator.setShowPrivMethods(args['privMembers'])
     dotGenerator.setShowProtMethods(args['protMembers'])
     dotGenerator.setShowPubMethods(args['pubMembers'])
+    dotGenerator.setGroupByNamespaces(args['namespaces'])
 
     dotfileName = args['outFile']
     logging.info("generating dotfile " + dotfileName)

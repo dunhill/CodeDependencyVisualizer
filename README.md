@@ -21,7 +21,8 @@ python ./CodeDependencyVisualizer.py --help
 usage: CodeDependencyVisualizer.py [-h] -d D [-o OUTFILE]
                                    [-u WITHUNUSEDHEADERS] [-a] [-i] [-r] [-p]
                                    [-t] [-P]
-                                   [-I INCLUDEDIRS [INCLUDEDIRS ...]] [-v]
+                                   [-I INCLUDEDIRS [INCLUDEDIRS ...]]
+                                   [--namespaces] [-v]
                                    [--excludeClasses EXCLUDECLASSES]
                                    [--includeClasses INCLUDECLASSES]
 
@@ -44,6 +45,7 @@ optional arguments:
   -I INCLUDEDIRS [INCLUDEDIRS ...], --includeDirs INCLUDEDIRS [INCLUDEDIRS ...]
                         additional search path(s) for include files (seperated
                         by space)
+  --namespaces          group classes by namespaces
   -v, --verbose         print verbose information for debugging purposes
   --excludeClasses EXCLUDECLASSES
                         classes matching this pattern will be excluded
