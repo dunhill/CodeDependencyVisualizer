@@ -1,9 +1,9 @@
 CodeDependencyVisualizer
 ========================
 
-This tool is intended for reverse engineering UML class diagrams out of existing C++ code. It can generate class diagrams with inheritances and associations.
+This tool is intended for reverse engineering UML class diagrams out of existing C++ code. It can generate class diagrams with inheritances, associations and weaker dependencies.
 
-You might also take a look at my blogpost: http://gernotklingler.com/blog/libclang-reverse-engineering-uml-class-diagrams/
+You might also take a look at blogpost: http://gernotklingler.com/blog/libclang-reverse-engineering-uml-class-diagrams/
 
 Dependencies
 ------------
@@ -56,7 +56,7 @@ optional arguments:
 Examples
 --------
 ```
-./CodeDependencyVisualizer.py -aiptP --verbose -d dummyCppProject -I dummyCppProject/subfolder"
+./CodeDependencyVisualizer.py -airptP --verbose -d dummyCppProject -I dummyCppProject/subfolder"
 ```
 The command above just creates the file 'uml.dot'. To convert the dot file to an svg image run the dot tool:
 ```

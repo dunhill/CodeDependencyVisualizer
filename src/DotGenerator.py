@@ -97,7 +97,7 @@ class DotGenerator:
         return c
 
     def _mergeSingleNamespaces(self, ns):
-        if len(ns.children) == 1:
+        if len(ns.children) == 1 and ns.fqn not in self.classes:
             childKey, childValue = ns.children.popitem()
             ns.fqn = childValue.fqn
             ns.children = childValue.children
@@ -107,7 +107,9 @@ class DotGenerator:
                 self._mergeSingleNamespaces(childNS)
 
     def _genNamespace(self, ns, ident=1):
-        if len(ns.children) == 0:
+        if len(ns.children) == 0 and ns.fqn == "":
+            return ""
+        elif len(ns.children) == 0:
             return self._genClass(self.classes[ns.fqn], ident)
         elif ns.fqn == "":
             c = ""
@@ -118,6 +120,8 @@ class DotGenerator:
             identStr = "  " * ident;
             c = identStr + "subgraph cluster_" + ns.getId() + " {\n"
             c += identStr + "  label = \"" + ns.fqn + "\"\n"
+            if ns.fqn in self.classes:
+                c += self._genClass(self.classes[ns.fqn], ident+1)
             for fqn, ns in ns.children.iteritems():
                 c += self._genNamespace(ns, ident+1)
             c += identStr + "}\n"
@@ -178,6 +182,9 @@ class DotGenerator:
 
     def setShowPubMethods(self, enable):
         self._showPubMembers = enable
+
+    def setGroupByNamespaces(self, enable):
+        self._groupByNamespace = enable
 
     def generate(self):
         dotContent = ("digraph dependencies {\n" +

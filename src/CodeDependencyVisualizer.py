@@ -143,7 +143,7 @@ def parseTranslationUnit(filePath, includeDirs, inclusionConfig):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CodeDependencyVisualizer (CDV)")
-    parser.add_argument('-d', required=True, help="directory with source files to parse (searches recusively)")
+    parser.add_argument('-d', required=True, help="directory with source files to parse (searches recusively)", nargs='+')
     parser.add_argument('-o', '--outFile', default='uml.dot', help="output file name / name of generated dot file")
     parser.add_argument('-u', '--withUnusedHeaders', help="parse unused header files (slow)")
     parser.add_argument('-a', '--associations', action="store_true", help="draw class member assiciations")
@@ -163,8 +163,10 @@ if __name__ == "__main__":
     filesToParsePatterns = ['*.cpp', '*.cxx', '*.c', '*.cc']
     if args['withUnusedHeaders']:
         filesToParsePatterns += ['*.h', '*.hxx', '*.hpp']
-    filesToParse = findFilesInDir(args['d'], filesToParsePatterns)
-    subdirectories = [x[0] for x in os.walk(args['d'])]
+    filesToParse = []
+    for d in args['d']:
+        filesToParse = filesToParse + findFilesInDir(d, filesToParsePatterns)
+    #    subdirectories = [x[0] for x in os.walk(args['d'])]
 
     loggingFormat = "%(levelname)s - %(module)s: %(message)s"
     logging.basicConfig(format=loggingFormat, level=logging.INFO)
